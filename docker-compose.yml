@@ -1,0 +1,12 @@
+name: desafio-lacrei
+
+services:
+  node-app:
+    container_name: node-app
+    env_file:
+      - .env
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 3000:3000
