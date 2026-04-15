@@ -12,5 +12,5 @@ app.use('/status', statusRouter);
 
 // Inicia o servidor
 app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
+    console.log(`Server is running on port ${port} in ${process.env.NODE_ENV} environment`);
 });

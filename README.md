@@ -1,6 +1,6 @@
-# Desafio Tecnico Lacrei
+# Desafio Técnico Lacrei
 
-API em Node.js com Express, que expõe uma rota HTTP `[GET] /status` para validar disponibilidade da aplicação. Possui também um teste unitário, que é executado durante o fluxo de CI/CD.
+API em Node.js com Express, que expõe uma rota HTTP `[GET] /status` para validar a disponibilidade da aplicação. Possui também um teste unitário, que é executado durante o fluxo de CI/CD.
 
 ## Stack e arquitetura
 
@@ -8,15 +8,16 @@ API em Node.js com Express, que expõe uma rota HTTP `[GET] /status` para valida
 - **Framework web:** Express
 - **Gerenciamento de ambiente:** dotenv
 - **Testes:** Node Test Runner (`node --test`) + Supertest
-- **Containerizacao:** Docker + Docker Compose
+- **Containerização:** Docker + Docker Compose
 
 Arquivos principais:
 
-- `server.js`: bootstrap da aplicação, leitura de variaveis de ambiente e registro de rotas
-- `routes/status.js`: implementacao do endpoint de status
+- `server.js`: bootstrap da aplicação, leitura de variáveis de ambiente e registro de rotas
+- `routes/status.js`: implementação do endpoint de status
 - `routes/status.test.js`: teste automatizado da rota `/status`
 - `Dockerfile`: build da imagem da aplicação
-- `docker-compose.yml`: orquestracao local do servico
+- `docker-compose.yml`: orquestração local do serviço
+- `.github/workflows`: arquivos de configuração das pipelines
 
 ## Endpoint
 
@@ -26,37 +27,28 @@ Exemplo de resposta:
 
 ```json
 {
-  "status": "ok"
+   "status": "ok",
+   "version": "1.1.0",
+   "environment": "staging"
 }
 ```
 
-Codigos esperados:
+Códigos esperados:
 
-- `200 OK`: aplicação disponivel
+- `200 OK`: aplicação disponível
 
-## Variaveis de ambiente
+## Variáveis de ambiente
 
-A aplicação usa `dotenv` e carrega variaveis do arquivo `.env`.
-
-| Variavel | Obrigatoria | Default | Descricao |
-| --- | --- | --- | --- |
-| `PORT` | nao | `3000` | Porta HTTP utilizada pelo servidor |
-
-Arquivos auxiliares de ambiente no projeto:
-
-- `.env` (usado no Docker Compose)
-- `.env.local`
-- `.env.development`
-- `.env.production`
+A aplicação usa a biblioteca `dotenv` para carregar as variáveis de ambiente em ambiente local. Em staging e produção, as variáveis são definidas diretamente na AWS.
 
 ## Como executar localmente (sem Docker)
 
-Pre-requisitos:
+Pré-requisitos:
 
 - Node.js (LTS recomendado)
 - npm
 
-Instalacao e execucao:
+Instalação e execução:
 
 ```bash
 npm install
@@ -91,13 +83,13 @@ O teste valida:
 
 ## Troubleshooting
 
-Se `localhost:3000/status` nao responder:
+Se `localhost:3000/status` não responder:
 
 1. Verifique se o container está em execução:
    ```bash
    docker ps
    ```
-2. Confira logs da aplicação:
+2. Confira os logs da aplicação:
    ```bash
    docker logs <container_id>
    ```
@@ -112,3 +104,19 @@ Se `localhost:3000/status` nao responder:
    ```
 
 Se ainda houver erro, valide se outra aplicação já usa a porta `3000`.
+
+## Linting
+
+Este projeto usa `ESLint` para padronização e validação estática do código.
+
+Para executar:
+
+```bash
+npm run lint:fix
+```
+
+O comando executa o ESLint em todo o projeto (`eslint . --fix`) e corrige automaticamente problemas como:
+
+- Variáveis não utilizadas
+- Uso de variáveis não declaradas
+- Inconsistências de pontuação, estilo e boas práticas
