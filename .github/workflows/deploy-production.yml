@@ -1,6 +1,4 @@
-# Deploy para produção quando o código é mergeado na branch main (via PR)
-
-name: Production Deployment
+name: "Production Deployment"
 
 on:
   push:
