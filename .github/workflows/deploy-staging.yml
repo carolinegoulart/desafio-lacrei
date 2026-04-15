@@ -9,15 +9,17 @@ on:
 
 permissions:
   contents: read
-  
+
 concurrency:
   group: deploy-staging
   cancel-in-progress: false
 
 jobs:
+  # Testes unitários e linting
   quality:
     uses: ./.github/workflows/quality-checks.yml
 
+  # Deploy para staging
   deploy:
     needs: quality
     uses: ./.github/workflows/ecs-deploy.yml
