@@ -1,12 +1,14 @@
 {
   "name": "desafio-lacrei",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "test": "node --test",
-    "dev": "node --watch server.js"
+    "dev": "node --watch server.js",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "keywords": [],
   "author": "",
@@ -16,6 +18,8 @@
     "express": "^5.2.1"
   },
   "devDependencies": {
+    "eslint": "^10.2.0",
+    "globals": "^17.5.0",
     "supertest": "^7.1.4"
   }
 }
