@@ -8,6 +8,7 @@ require('dotenv').config();
 const port = process.env.PORT || 3000;
 
 // Rotas da aplicação
+app.use('/', statusRouter);
 app.use('/status', statusRouter);
 
 // Inicia o servidor
