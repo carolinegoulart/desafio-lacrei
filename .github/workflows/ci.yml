@@ -1,0 +1,17 @@
+# CI em PRs para develop e main (apenas validações de qualidade - testes e linting)
+
+name: CI (Quality checks)
+
+on:
+  pull_request:
+    branches:
+      - develop
+      - main
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    uses: ./.github/workflows/quality-checks.yml

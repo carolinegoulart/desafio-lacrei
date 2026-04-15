@@ -1,0 +1,92 @@
+# Build/push da imagem no ECR e deploy no ECS (staging ou produção via input)
+
+name: ECS deploy
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: Nome do GitHub Environment (ex. Staging, Production)
+        required: true
+        type: string
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    steps:
+      # Busca o código no repositório
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      # Configura as credenciais AWS
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          aws-region: us-east-1
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      # Login no ECR (AWS)
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      # Builda a imagem Docker
+      - name: Build Docker image
+        env:
+          IMAGE_URI: ${{ secrets.ECR_REPOSITORY }}:${{ github.sha }}
+        run: docker build -t $IMAGE_URI .
+
+      # Faz o push da imagem para o ECR (AWS)
+      - name: Push Docker image
+        env:
+          IMAGE_URI: ${{ secrets.ECR_REPOSITORY }}:${{ github.sha }}
+        run: docker push $IMAGE_URI
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    environment: ${{ inputs.environment }}
+    steps:
+      # Configura as credenciais AWS
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          aws-region: us-east-1
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      # Faz o download da task definition (ECS)
+      - name: Download and clean task definition
+        run: |
+          aws ecs describe-task-definition \
+            --task-definition ${{ vars.ECS_TASK_DEFINITION }} \
+            --query taskDefinition \
+          | jq 'del(
+              .taskDefinitionArn,
+              .revision,
+              .status,
+              .requiresAttributes,
+              .compatibilities,
+              .registeredAt,
+              .registeredBy,
+              .enableFaultInjection
+            )' > task-definition.json
+
+      # Renderiza a task definition (ECS)
+      - name: Render task definition
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: task-definition.json
+          container-name: ${{ vars.ECS_CONTAINER_NAME }}
+          image: ${{ secrets.ECR_REPOSITORY }}:${{ github.sha }}
+
+      # Deploya a task definition para o ECS (AWS) para fazer o deploy da aplicação
+      - name: Deploy to ECS
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+        with:
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          service: ${{ vars.ECS_SERVICE }}
+          cluster: ${{ vars.ECS_CLUSTER }}
+          wait-for-service-stability: true
