@@ -7,14 +7,19 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+
 concurrency:
   group: deploy-production
   cancel-in-progress: false
 
 jobs:
+  # Testes unitários e linting
   quality:
     uses: ./.github/workflows/quality-checks.yml
 
+  # Deploy para produção
   deploy:
     needs: quality
     uses: ./.github/workflows/ecs-deploy.yml
