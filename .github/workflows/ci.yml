@@ -12,9 +12,11 @@ permissions:
   contents: read
 
 concurrency:
+  # Cria um grupo de concorrência para evitar múltiplos builds simultâneos
   group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
+  # Testes unitários e linting
   quality:
     uses: ./.github/workflows/quality-checks.yml
