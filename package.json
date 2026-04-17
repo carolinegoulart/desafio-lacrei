@@ -1,6 +1,6 @@
 {
   "name": "desafio-lacrei",
-  "version": "1.0.21",
+  "version": "1.0.20",
   "description": "",
   "main": "server.js",
   "scripts": {
